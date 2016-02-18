@@ -270,6 +270,108 @@ function selectMenuItem($name, $type='page') {
   }
 }
 	
+/**
+ * Trae las paginas especiales
+ * @param  string  $slug   Slug de la página especial
+ * @param  boolean $object Si se desea traer el un objeto o sólo el id
+ * @return objeto o string          
+ */
+function specialPage( $slug, $object = false )
+{
+	if (isset($GLOBALS['special_pages_ids'][$slug]))
+	{
+		if ($object) 
+		{		
+			return get_post($GLOBALS['special_pages_ids'][$slug]);
+		}
+		return $GLOBALS['special_pages_ids'][$slug];
+	}
+	
+	throw new Exception("Special page -- $slug -- not found");
+}
+
+function specialPagePermalink($slug) {
+	get_permalink( specialPage($slug) );
+}
+
+function isSpecialPage($slug) 
+{	
+	if (!isset( $GLOBALS['special_pages_ids'][$slug] ) ) {
+		throw new Exception("Special page -- $slug -- not found");
+	}
+
+	return $_GET['post'] == $GLOBALS['special_pages_ids'][$slug];
+}
+
+function specialPageMeta($slug, $meta, $single = true) {
+
+	if (!isset( $GLOBALS['special_pages_ids'][$slug] ) ) {
+		throw new Exception("Special page -- $slug -- not found");
+	}
+
+	return get_post_meta($GLOBALS['special_pages_ids'][$slug], $meta , $single);
+}
+
+/**
+ * Imprime los meta property de la pagina
+ * @param  string $title       titulo de la pagina que se le asginara
+ * @param  string $descripcion descripccion de la pagina
+ * @param  object $image       objeto tipo Cltvo_Img
+ */
+function social_properties($title, $descripcion, $image){
+
+
+		// if( empty($descripcion ) ){
+		// 		$page = get_post($GLOBALS['special_pages_ids']['acerca-de']);
+		// 		$descripcion = cltvo_translate($page->post_content);
+		// }
+
+
+		if(strlen($descripcion) > 160){
+			$pos = strpos($descripcion, ' ', 160);
+			$descripcion = substr($descripcion,0, $pos).'...';
+		}
+
+
+
+
+		echo '<meta name="description" content="'. $descripcion.'">
+			
+			 	<!-- Facebook Metadata /-->
+				<!-- <meta property="fb:page_id" content="" /> -->
+				<meta property="og:url" content=" '. cltvo_current_url() .' "/>
+				<meta property="og:image" content=" '. $image->src .' "/>
+				<meta property="og:image:width" content=" '. $image->width .' " />
+				<meta property="og:image:height" content=" '. $image->height .' " />
+				<meta property="og:description" content=" '. $descripcion .' "/>
+				<meta property="og:title" content=" '. $title .' "/>
+			
+				<!-- Google+ Metadata /-->
+			
+				<meta itemprop="name" content=" '. $title .' ">
+				<meta itemprop="description" content=" '. $descripcion .' ">
+				<meta itemprop="image" content=" '. $image->src .' ">';
+
+}
+
+/**
+ * genera la direccion donde se encuentr actualemnte
+ * @return string  url actual
+ */
+function cltvo_current_url(){
+    $s = &$_SERVER;
+    $ssl = (!empty($s['HTTPS']) && $s['HTTPS'] == 'on') ? true:false;
+    $sp = strtolower($s['SERVER_PROTOCOL']);
+    $protocol = substr($sp, 0, strpos($sp, '/')) . (($ssl) ? 's' : '');
+    $port = $s['SERVER_PORT'];
+    $port = ((!$ssl && $port=='80') || ($ssl && $port=='443')) ? '' : ':'.$port;
+    $host = isset($s['HTTP_X_FORWARDED_HOST']) ? $s['HTTP_X_FORWARDED_HOST'] : (isset($s['HTTP_HOST']) ? $s['HTTP_HOST'] : null);
+    $host = isset($host) ? $host : $s['SERVER_NAME'] . $port;
+    $uri = $protocol . '://' . $host . $s['REQUEST_URI'];
+    $segments = explode('?', $uri, 2);
+    $url = $segments[0];
+    return $url;
+}
 
 
 
