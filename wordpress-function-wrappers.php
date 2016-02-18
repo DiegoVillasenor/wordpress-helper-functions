@@ -192,7 +192,84 @@ function queryChildren( $post, $default_args = true , $query_args = [] ){
 
 }
 
+/**
+ * Verifica que una algo exista
+ * 
+ * @param  String, Array, Variable $something    
+ * @param  string $returned If something does not exist
+ * @return $somthing or $returned           
+ */
+function init($something, $returned = '') {
+	return ( isset($something) ) ? $something : $returned;
+}
 
+
+/**
+ * Inicializa un array
+ * 
+ * @param  array $array el array a inicializar
+ * @return array inicializado
+ */
+function initArray($array, $key, $returned = []) {
+	return ( isset($array[$key]) && is_array($array[$key]) ) ? $array[$key] : $returned;
+}
+
+/**
+ * Inicializa un array anidado en otro array
+ * 
+ * @param  [type] $array         [description]
+ * @param  [type] $sub_array_key [description]
+ * @return [type]                [description]
+ */
+function initSubArray($array, $sub_array_key) {
+	return ( is_array($array) && isset($array[$sub_array_key]) && is_array($array[$sub_array_key]) ) ? $array[$sub_array_key] : [];
+} 
+
+/**
+ * Determines if an attachment is of the specified MIME Type
+ * @param  number  $attachment_id 
+ * @param  string  $mime_type     
+ * @return boolean                False if MIME Type does not match.
+ */
+function isMimeType($attachment_id, $mime_type) {
+	return strpos( get_post_mime_type( $attachment_id ), $mime_type ) !== false;
+}
+
+/**
+ * Adds class to selected menu item
+ * 
+ * @param  string $name Slug, custom post type name, or categroy name.
+ * @param  string $type Page, single, category, or custom
+ * @return string       CSS class
+ */
+function selectMenuItem($name, $type='page') {
+  global $post;
+  
+  if ($type === 'page') {
+    if ( is_page($name) ) {
+      return 'menuMain__link--active';
+    }
+  }
+
+  if ($type === 'custom') {
+    if ( is_post_type_archive($name) ) {
+      return 'menuMain__link--active';
+    }
+  }
+
+   if ($type === 'category') {
+    if ( is_category($name) ) {
+      return 'menuMain__link--active';
+    }
+  }
+
+  if ($type === 'single') {
+    if (is_single() && get_the_category($post->ID)[0]->slug === $name) {
+      return 'menuMain__link--active';
+    }
+  }
+}
+	
 
 
 
